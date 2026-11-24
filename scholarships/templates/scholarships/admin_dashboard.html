@@ -1,0 +1,100 @@
+{% extends 'scholarships/base.html' %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3 class="fw-bold mb-0">Administrator Control Panel</h3>
+    <a href="{% url 'export_report_csv' %}" class="btn btn-success btn-sm">
+        <i class="bi bi-file-earmark-spreadsheet me-1"></i> Export CSV Report
+    </a>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-3"><div class="card stat-card p-3"><small class="text-muted">Total Applications</small><h3 class="fw-bold mb-0">{{ stats.total_apps }}</h3></div></div>
+    <div class="col-md-3"><div class="card stat-card p-3"><small class="text-muted">Pending Review</small><h3 class="fw-bold text-warning mb-0">{{ stats.pending }}</h3></div></div>
+    <div class="col-md-3"><div class="card stat-card p-3"><small class="text-muted">Approved</small><h3 class="fw-bold text-success mb-0">{{ stats.approved }}</h3></div></div>
+    <div class="col-md-3"><div class="card stat-card p-3"><small class="text-muted">Rejected</small><h3 class="fw-bold text-danger mb-0">{{ stats.rejected }}</h3></div></div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-4">
+        <div class="card p-3">
+            <h5 class="fw-bold mb-3">Add New Scholarship Scheme</h5>
+            <form method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="add_scholarship" value="1">
+                <div class="mb-2"><label class="form-label small">Scheme Title</label><input type="text" name="title" class="form-control form-control-sm" required></div>
+                <div class="mb-2"><label class="form-label small">Provider</label><input type="text" name="provider" class="form-control form-control-sm" required></div>
+                <div class="row g-2 mb-2">
+                    <div class="col-6"><label class="form-label small">Amount (&#8377;)</label><input type="number" name="amount" class="form-control form-control-sm" required></div>
+                    <div class="col-6"><label class="form-label small">Min %</label><input type="number" step="0.01" name="min_percentage" class="form-control form-control-sm" value="60" required></div>
+                </div>
+                <div class="row g-2 mb-2">
+                    <div class="col-6"><label class="form-label small">Max Income (&#8377;)</label><input type="number" name="max_income" class="form-control form-control-sm" value="250000" required></div>
+                    <div class="col-6">
+                        <label class="form-label small">Category</label>
+                        <select name="allowed_category" class="form-select form-select-sm">
+                            <option value="ALL">ALL</option>
+                            <option value="OPEN">OPEN</option>
+                            <option value="OBC">OBC</option>
+                            <option value="SC">SC</option>
+                            <option value="ST">ST</option>
+                            <option value="EWS">EWS</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="mb-2"><label class="form-label small">Deadline</label><input type="date" name="deadline" class="form-control form-control-sm" required></div>
+                <div class="mb-3"><label class="form-label small">Description</label><textarea name="description" rows="2" class="form-control form-control-sm" required></textarea></div>
+                <button type="submit" class="btn btn-primary btn-sm w-100">Publish Scheme</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="col-lg-8">
+        <div class="card p-3">
+            <h5 class="fw-bold mb-3">Student Applications &amp; Document Verification</h5>
+            <div class="table-responsive">
+                <table class="table table-sm align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Student (PRN)</th>
+                            <th>Scholarship</th>
+                            <th>Uploaded Docs</th>
+                            <th>Decision</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for app in applications %}
+                        <tr>
+                            <td>
+                                <strong>{{ app.student.user.get_full_name }}</strong><br>
+                                <small class="text-muted">PRN: {{ app.student.prn_number }} | {{ app.student.percentage }}% | {{ app.student.category }}</small>
+                            </td>
+                            <td>{{ app.scholarship.title }}</td>
+                            <td class="small">
+                                <a href="{{ app.marksheet.url }}" target="_blank" class="d-block">Marksheet</a>
+                                <a href="{{ app.income_certificate.url }}" target="_blank" class="d-block">Income Cert</a>
+                                <a href="{{ app.id_proof.url }}" target="_blank" class="d-block">ID Proof</a>
+                            </td>
+                            <td>
+                                <form method="POST" action="{% url 'update_status' app.id %}" class="d-flex flex-column gap-1">
+                                    {% csrf_token %}
+                                    <select name="status" class="form-select form-select-sm">
+                                        <option value="Pending" {% if app.status == 'Pending' %}selected{% endif %}>Pending</option>
+                                        <option value="Verified" {% if app.status == 'Verified' %}selected{% endif %}>Verified</option>
+                                        <option value="Approved" {% if app.status == 'Approved' %}selected{% endif %}>Approve</option>
+                                        <option value="Rejected" {% if app.status == 'Rejected' %}selected{% endif %}>Reject</option>
+                                    </select>
+                                    <input type="text" name="admin_remarks" value="{{ app.admin_remarks|default:'' }}" placeholder="Remarks..." class="form-control form-control-sm">
+                                    <button type="submit" class="btn btn-dark btn-sm">Update</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="4" class="text-center text-muted py-3">No applications submitted yet.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

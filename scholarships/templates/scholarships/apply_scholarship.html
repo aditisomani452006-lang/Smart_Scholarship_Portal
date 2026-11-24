@@ -1,0 +1,30 @@
+{% extends 'scholarships/base.html' %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-7">
+        <div class="card p-4">
+            <h4 class="fw-bold">Apply for {{ scholarship.title }}</h4>
+            <p class="text-muted small">Upload clear PDF or JPG/PNG copies of your documents for verification.</p>
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">1. Previous Year Marksheet</label>
+                    <input type="file" name="marksheet" class="form-control" accept=".pdf,.jpg,.jpeg,.png" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">2. Valid Income Certificate</label>
+                    <input type="file" name="income_certificate" class="form-control" accept=".pdf,.jpg,.jpeg,.png" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">3. College ID / Aadhaar Card</label>
+                    <input type="file" name="id_proof" class="form-control" accept=".pdf,.jpg,.jpeg,.png" required>
+                </div>
+                <div class="d-flex justify-content-between mt-4">
+                    <a href="{% url 'student_dashboard' %}" class="btn btn-outline-secondary">Cancel</a>
+                    <button type="submit" class="btn btn-success px-4">Submit Application</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,113 @@
+{% extends 'scholarships/base.html' %}
+{% block content %}
+<div class="row g-4">
+    <div class="col-lg-4">
+        <div class="card p-3 mb-4">
+            <h5 class="fw-bold mb-3"><i class="bi bi-person-badge text-primary me-2"></i>Student Profile</h5>
+            <ul class="list-group list-group-flush small">
+                <li class="list-group-item px-0"><strong>Name:</strong> {{ student.user.get_full_name }}</li>
+                <li class="list-group-item px-0"><strong>PRN:</strong> {{ student.prn_number }}</li>
+                <li class="list-group-item px-0"><strong>Course:</strong> {{ student.course }} ({{ student.current_year }})</li>
+                <li class="list-group-item px-0"><strong>Marks:</strong> {{ student.percentage }}% | <strong>Category:</strong> {{ student.category }}</li>
+                <li class="list-group-item px-0"><strong>Family Income:</strong> &#8377;{{ student.annual_income }}</li>
+            </ul>
+        </div>
+
+        <div class="card p-3">
+            <h6 class="fw-bold mb-3"><i class="bi bi-bell-fill text-warning me-2"></i>Recent Notifications</h6>
+            {% for note in notifications %}
+                <div class="border-bottom pb-2 mb-2 small">
+                    <div>{{ note.message }}</div>
+                    <span class="text-muted" style="font-size: 0.75rem;">{{ note.created_at|timesince }} ago</span>
+                </div>
+            {% empty %}
+                <p class="text-muted small mb-0">No notifications yet.</p>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="col-lg-8">
+        <div class="card p-4 mb-4">
+            <h5 class="fw-bold mb-3">Available Scholarships &amp; Eligibility Check</h5>
+            <div class="table-responsive">
+                <table class="table align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Scheme</th>
+                            <th>Amount</th>
+                            <th>Eligibility Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in scholarship_list %}
+                        <tr>
+                            <td>
+                                <strong>{{ item.obj.title }}</strong><br>
+                                <small class="text-muted">Deadline: {{ item.obj.deadline }}</small>
+                            </td>
+                            <td class="fw-bold text-success">&#8377;{{ item.obj.amount }}</td>
+                            <td>
+                                {% if item.eligible %}
+                                    <span class="badge bg-success-subtle text-success border border-success">Eligible</span>
+                                {% else %}
+                                    <span class="badge bg-danger-subtle text-danger border border-danger">Not Eligible</span>
+                                    <div class="small text-danger mt-1">{{ item.reasons|join:", " }}</div>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if item.already_applied %}
+                                    <button class="btn btn-secondary btn-sm" disabled>Applied</button>
+                                {% elif item.eligible %}
+                                    <a href="{% url 'apply_scholarship' item.obj.id %}" class="btn btn-primary btn-sm">Apply Now</a>
+                                {% else %}
+                                    <button class="btn btn-outline-secondary btn-sm" disabled>Locked</button>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="card p-4">
+            <h5 class="fw-bold mb-3">My Application Status</h5>
+            <div class="table-responsive">
+                <table class="table align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Scholarship</th>
+                            <th>Applied On</th>
+                            <th>Status</th>
+                            <th>Admin Remarks</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for app in applications %}
+                        <tr>
+                            <td>{{ app.scholarship.title }}</td>
+                            <td>{{ app.applied_on|date:"d M Y" }}</td>
+                            <td>
+                                {% if app.status == 'Approved' %}
+                                    <span class="badge bg-success">Approved</span>
+                                {% elif app.status == 'Rejected' %}
+                                    <span class="badge bg-danger">Rejected</span>
+                                {% elif app.status == 'Verified' %}
+                                    <span class="badge bg-info text-dark">Docs Verified</span>
+                                {% else %}
+                                    <span class="badge bg-warning text-dark">Pending</span>
+                                {% endif %}
+                            </td>
+                            <td class="small text-muted">{{ app.admin_remarks|default:"Under review" }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="4" class="text-center text-muted">You haven't applied to any scholarship yet.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,46 @@
+{% extends 'scholarships/base.html' %}
+{% block content %}
+<div class="hero-section p-5 mb-4 shadow">
+    <div class="row align-items-center">
+        <div class="col-lg-8">
+            <h1 class="display-6 fw-bold">Centralized Scholarship Portal</h1>
+            <p class="lead mb-4">Check eligibility automatically, upload documents online, and track your scholarship status in real time without manual paperwork.</p>
+            {% if not user.is_authenticated %}
+                <a href="{% url 'register' %}" class="btn btn-warning btn-lg fw-semibold me-2">Register as Student</a>
+                <a href="{% url 'login' %}" class="btn btn-outline-light btn-lg">Sign In</a>
+            {% else %}
+                <a href="{% url 'student_dashboard' %}" class="btn btn-warning btn-lg fw-semibold">Go to Dashboard</a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<h4 class="mb-3 fw-bold text-dark">Active Scholarship Schemes</h4>
+<div class="row g-4">
+    {% for sch in scholarships %}
+    <div class="col-md-6 col-lg-4">
+        <div class="card h-100 p-3">
+            <div class="card-body d-flex flex-column">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <span class="badge bg-primary">{{ sch.allowed_category }}</span>
+                    <span class="fw-bold text-success">&#8377;{{ sch.amount }}</span>
+                </div>
+                <h5 class="card-title fw-bold">{{ sch.title }}</h5>
+                <p class="text-muted small mb-2"><i class="bi bi-building"></i> {{ sch.provider }}</p>
+                <p class="card-text small text-secondary flex-grow-1">{{ sch.description|truncatewords:22 }}</p>
+                <hr>
+                <div class="small text-muted mb-3">
+                    <div><strong>Min Marks:</strong> {{ sch.min_percentage }}% | <strong>Max Income:</strong> &#8377;{{ sch.max_income }}</div>
+                    <div><strong>Deadline:</strong> <span class="text-danger">{{ sch.deadline }}</span></div>
+                </div>
+                <a href="{% url 'student_dashboard' %}" class="btn btn-outline-primary btn-sm w-100">Check Eligibility &amp; Apply</a>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12">
+        <div class="alert alert-light border text-center">No active scholarships listed yet. Admin can add schemes from the Admin Panel.</div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

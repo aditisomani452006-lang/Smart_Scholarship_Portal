@@ -1,0 +1,31 @@
+ :root {
+    --primary-navy: #1e3a8a;
+    --accent-blue: #2563eb;
+    --soft-bg: #f8fafc;
+}
+
+body {
+    background-color: var(--soft-bg);
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+
+.navbar-brand {
+    font-weight: 700;
+    letter-spacing: 0.3px;
+}
+
+.hero-section {
+    background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
+    color: white;
+    border-radius: 12px;
+}
+
+.card {
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.stat-card {
+    border-left: 4px solid var(--accent-blue);
+}
